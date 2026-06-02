@@ -33,7 +33,7 @@ RUN if [ "$RHEL" = "true" ] ; then \
     fi
 
 ######## RHEL Image ########
-FROM yahavihomework.jfrog.io/docker/registry.access.redhat.com/ubi9/ubi-micro:latest AS rhel
+FROM registry.access.redhat.com/ubi9/ubi-micro:latest AS rhel
 ARG SERVICE_NAME
 ARG VERSION
 ARG RELEASE
@@ -59,7 +59,7 @@ ENTRYPOINT ["/app"]
 ######### Final Image #########
 # Use distroless as minimal base image to package the manager binary
 # Refer to https://github.com/GoogleContainerTools/distroless for more details
-FROM yahavihomework.jfrog.io/docker/gcr.io/distroless/static:nonroot
+FROM gcr.io/distroless/static:nonroot
 ARG SERVICE_NAME
 WORKDIR /
 COPY --from=builder /workspace/build/$SERVICE_NAME ./app
