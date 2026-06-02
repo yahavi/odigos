@@ -32,3 +32,5 @@ yalc.lock
 cli/pkg/helm/embedded/*.tgz
 
 kubeconfig
+.fly/
+.cursor/rules/fly-decision-records.mdc

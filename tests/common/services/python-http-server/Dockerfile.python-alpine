@@ -1,4 +1,4 @@
-FROM python:3.10.15-alpine
+FROM yahavihomework.jfrog.io/docker/python:3.10.15-alpine
 
 # we use this images as a test case for secure execution mode
 # this is the reason for running python as a non root user

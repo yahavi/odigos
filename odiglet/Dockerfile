@@ -1,6 +1,6 @@
 ARG ODIGLET_BASE_IMAGE=registry.odigos.io/odiglet-base:v1.16
 
-FROM --platform=$BUILDPLATFORM busybox:1.36.1 AS dotnet-builder
+FROM --platform=$BUILDPLATFORM yahavihomework.jfrog.io/docker/busybox:1.36.1 AS dotnet-builder
 WORKDIR /dotnet-instrumentation
 ARG DOTNET_OTEL_VERSION=v1.9.0
 ARG TARGETARCH
@@ -149,7 +149,7 @@ FROM ${ODIGLET_BASE_IMAGE} AS rsync-base
 # - Provides built-in `sh`, `cp`, and other essential Unix tools.
 # - Allows `sh -c` command chaining (`cp dir1 dst1 && cp dir2 dst2`) in init containers.
 # - Very small (~1MB), making it good for init containers.
-FROM busybox:1.36.1 AS agents
+FROM yahavihomework.jfrog.io/docker/busybox:1.36.1 AS agents
 WORKDIR /instrumentations/
 
 # Copy all instrumentation assets from the build stage

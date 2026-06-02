@@ -5,7 +5,7 @@ set -e
 if helm status chaos-mesh -n chaos-mesh >/dev/null 2>&1; then
   echo "chaos-mesh helm already installed, probably from previous run. Skipping..."
 else
-  helm repo add chaos-mesh https://charts.chaos-mesh.org
+  helm repo add chaos-mesh https://yahavihomework.jfrog.io/artifactory/helm/chaos-mesh
   helm repo update
   RUNTIME=$(kubectl get node "$(kubectl get nodes -o jsonpath='{.items[0].metadata.name}')" -o=jsonpath='{.status.nodeInfo.containerRuntimeVersion}')
   if [[ $RUNTIME == docker://* ]]; then
