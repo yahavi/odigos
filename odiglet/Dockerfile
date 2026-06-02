@@ -1,6 +1,6 @@
-ARG ODIGLET_BASE_IMAGE=registry.odigos.io/odiglet-base:v1.16
+ARG ODIGLET_BASE_IMAGE=yahavihomework.jfrog.io/docker/registry.odigos.io/odiglet-base:v1.16
 
-FROM --platform=$BUILDPLATFORM busybox:1.36.1 AS dotnet-builder
+FROM --platform=$BUILDPLATFORM yahavihomework.jfrog.io/docker/busybox:1.36.1 AS dotnet-builder
 WORKDIR /dotnet-instrumentation
 ARG DOTNET_OTEL_VERSION=v1.9.0
 ARG TARGETARCH
@@ -40,24 +40,24 @@ ARG JAVA_OTEL_VERSION=v2.10.0
 ADD --chmod=644 https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/$JAVA_OTEL_VERSION/opentelemetry-javaagent.jar /instrumentations/java/javaagent.jar
 
 # python-community/python-community3.8
-COPY --from=public.ecr.aws/odigos/agents/python-community:v1.0.73-py3.8 /instrumentations/python3.8 /instrumentations/python3.8
-COPY --from=public.ecr.aws/odigos/agents/python-community:v1.0.87 /instrumentations/python /instrumentations/python
+COPY --from=yahavihomework.jfrog.io/docker/public.ecr.aws/odigos/agents/python-community:v1.0.73-py3.8 /instrumentations/python3.8 /instrumentations/python3.8
+COPY --from=yahavihomework.jfrog.io/docker/public.ecr.aws/odigos/agents/python-community:v1.0.87 /instrumentations/python /instrumentations/python
 
 # nodejs-community
-COPY --from=public.ecr.aws/odigos/agents/nodejs-community:v0.8.0 /instrumentations/opentelemetry-node /instrumentations/opentelemetry-node
-COPY --from=public.ecr.aws/odigos/agents/nodejs-community:v0.8.0 /instrumentations/nodejs-community /instrumentations/nodejs-community
+COPY --from=yahavihomework.jfrog.io/docker/public.ecr.aws/odigos/agents/nodejs-community:v0.8.0 /instrumentations/opentelemetry-node /instrumentations/opentelemetry-node
+COPY --from=yahavihomework.jfrog.io/docker/public.ecr.aws/odigos/agents/nodejs-community:v0.8.0 /instrumentations/nodejs-community /instrumentations/nodejs-community
 # nodejs-community-14
-COPY --from=public.ecr.aws/odigos/agents/nodejs-community-14:v0.0.20 /instrumentations/opentelemetry-node-14 /instrumentations/opentelemetry-node-14
-COPY --from=public.ecr.aws/odigos/agents/nodejs-community-14:v0.0.20 /instrumentations/nodejs-community-14 /instrumentations/nodejs-community-14
+COPY --from=yahavihomework.jfrog.io/docker/public.ecr.aws/odigos/agents/nodejs-community-14:v0.0.20 /instrumentations/opentelemetry-node-14 /instrumentations/opentelemetry-node-14
+COPY --from=yahavihomework.jfrog.io/docker/public.ecr.aws/odigos/agents/nodejs-community-14:v0.0.20 /instrumentations/nodejs-community-14 /instrumentations/nodejs-community-14
 
 # nodejs-community
 COPY --from=dotnet-builder /dotnet-instrumentation /instrumentations/dotnet
 
 # php-community
-COPY --from=public.ecr.aws/odigos/agents/php-community:v0.3.2 /instrumentations/php /instrumentations/php
+COPY --from=yahavihomework.jfrog.io/docker/public.ecr.aws/odigos/agents/php-community:v0.3.2 /instrumentations/php /instrumentations/php
 
 # ruby-community
-COPY --from=public.ecr.aws/odigos/agents/ruby-community:v0.0.8 /instrumentations/ruby /instrumentations/ruby
+COPY --from=yahavihomework.jfrog.io/docker/public.ecr.aws/odigos/agents/ruby-community:v0.0.8 /instrumentations/ruby /instrumentations/ruby
 
 # loader
 ARG TARGETARCH
@@ -149,7 +149,7 @@ FROM ${ODIGLET_BASE_IMAGE} AS rsync-base
 # - Provides built-in `sh`, `cp`, and other essential Unix tools.
 # - Allows `sh -c` command chaining (`cp dir1 dst1 && cp dir2 dst2`) in init containers.
 # - Very small (~1MB), making it good for init containers.
-FROM busybox:1.36.1 AS agents
+FROM yahavihomework.jfrog.io/docker/busybox:1.36.1 AS agents
 WORKDIR /instrumentations/
 
 # Copy all instrumentation assets from the build stage
@@ -160,7 +160,7 @@ COPY --from=agents-builder /instrumentations/ .
 USER 1000:1000
 
 ######### RHEL agents final image #########
-FROM registry.access.redhat.com/ubi9/ubi-micro:latest AS agents-rhel
+FROM yahavihomework.jfrog.io/docker/registry.access.redhat.com/ubi9/ubi-micro:latest AS agents-rhel
 ARG VERSION
 ARG RELEASE
 ARG SUMMARY
@@ -181,7 +181,7 @@ COPY --from=agents-builder /instrumentations/ .
 USER 1000:1000
 
 ######### RHEL Odiglet #########
-FROM registry.access.redhat.com/ubi9/ubi-micro:latest AS rhel
+FROM yahavihomework.jfrog.io/docker/registry.access.redhat.com/ubi9/ubi-micro:latest AS rhel
 ARG VERSION
 ARG RELEASE
 ARG SUMMARY
@@ -206,7 +206,7 @@ COPY --from=agents-builder /instrumentations/ .
 CMD ["/root/odiglet"]
 
 ######### Default Odiglet #########
-FROM gcr.io/distroless/base:3443777deec6bd5c58be682f286aefffd1c871ae
+FROM yahavihomework.jfrog.io/docker/gcr.io/distroless/base:3443777deec6bd5c58be682f286aefffd1c871ae
 COPY --from=builder /go/src/github.com/odigos-io/odigos/odiglet/odiglet /root/odiglet
 COPY --from=deviceplugin-builder /go/src/github.com/odigos-io/odigos/deviceplugin/deviceplugin /root/deviceplugin
 COPY --from=csi-driver-builder /go/src/github.com/odigos-io/odigos/odiglet/odigos-csi-driver /root/odigos-csi-driver

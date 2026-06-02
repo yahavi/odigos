@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM golang:1.26.2-trixie AS builder
+FROM --platform=$BUILDPLATFORM yahavihomework.jfrog.io/docker/golang:1.26.2-trixie AS builder
 COPY ./collector/ /go/src/collector
 # Need to copy the common folder to the collector for custom connector that uses it
 COPY ./common/ /go/src/common
@@ -19,7 +19,7 @@ RUN if [ "$RHEL" = "true" ] ; then \
       make licenses ; \
     fi
 
-FROM registry.access.redhat.com/ubi9/ubi-micro:latest AS rhel
+FROM yahavihomework.jfrog.io/docker/registry.access.redhat.com/ubi9/ubi-micro:latest AS rhel
 ARG VERSION
 ARG RELEASE
 ARG SUMMARY
@@ -37,6 +37,6 @@ COPY --from=builder /go/src/collector/odigosotelcol/LICENSE /licenses/.
 USER 65532:65532
 CMD ["/odigosotelcol"]
 
-FROM gcr.io/distroless/base:latest
+FROM yahavihomework.jfrog.io/docker/gcr.io/distroless/base:latest
 COPY --from=builder /go/src/collector/odigosotelcol/odigosotelcol /odigosotelcol
 CMD ["/odigosotelcol"]

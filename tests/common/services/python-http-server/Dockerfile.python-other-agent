@@ -1,4 +1,4 @@
-FROM python
+FROM yahavihomework.jfrog.io/docker/python
 
 WORKDIR /app
 COPY . /app

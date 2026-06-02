@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM node:20.19.0 AS deps
+FROM --platform=$BUILDPLATFORM yahavihomework.jfrog.io/docker/node:20.19.0 AS deps
 WORKDIR /app
 COPY frontend/webapp/package.json frontend/webapp/yarn.lock ./
 COPY frontend/webapp/.yalc* ./.yalc/
@@ -13,13 +13,13 @@ RUN if [ -d .yalc ] && [ "$(ls -A .yalc 2>/dev/null)" ]; then \
       yarn install --frozen-lockfile; \
     fi
 
-FROM --platform=$BUILDPLATFORM node:20.19.0 AS builder
+FROM --platform=$BUILDPLATFORM yahavihomework.jfrog.io/docker/node:20.19.0 AS builder
 WORKDIR /webapp
 COPY --from=deps /app/node_modules ./node_modules
 COPY frontend/webapp .
 RUN yarn build
 
-FROM --platform=$BUILDPLATFORM golang:1.26.2 AS backend
+FROM --platform=$BUILDPLATFORM yahavihomework.jfrog.io/docker/golang:1.26.2 AS backend
 WORKDIR /app
 COPY . .
 RUN rm -rf frontend/webapp/*
@@ -33,7 +33,7 @@ RUN if [ "$RHEL" = "true" ] ; then \
       make licenses ; \
     fi
 
-FROM registry.access.redhat.com/ubi9/ubi-micro:latest AS rhel
+FROM yahavihomework.jfrog.io/docker/registry.access.redhat.com/ubi9/ubi-micro:latest AS rhel
 ARG VERSION
 ARG RELEASE
 ARG SUMMARY
@@ -52,7 +52,7 @@ COPY --from=backend /app/frontend/LICENSE /licenses/.
 USER 65532:65532
 ENTRYPOINT ["/app/odigos-ui", "--address", "0.0.0.0"]
 
-FROM gcr.io/distroless/static:nonroot
+FROM yahavihomework.jfrog.io/docker/gcr.io/distroless/static:nonroot
 WORKDIR /app
 COPY --from=backend /app/frontend/odigos-ui .
 USER 65532:65532
