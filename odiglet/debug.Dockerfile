@@ -3,7 +3,7 @@ ARG ODIGLET_BASE_IMAGE=registry.odigos.io/odiglet-base:v1.16
 
 ######### python Native Community Agent #########
 
-FROM --platform=$BUILDPLATFORM busybox:1.36.1 AS dotnet-builder
+FROM --platform=$BUILDPLATFORM odigosdemo.jfrog.io/docker/busybox:1.36.1 AS dotnet-builder
 WORKDIR /dotnet-instrumentation
 ARG DOTNET_OTEL_VERSION=v1.9.0
 ARG TARGETARCH
@@ -87,7 +87,7 @@ RUN wget --directory-prefix=loader https://storage.googleapis.com/odigos-loader/
 
 FROM ${ODIGLET_BASE_IMAGE} AS rsync-base
 
-FROM registry.fedoraproject.org/fedora-minimal:38
+FROM odigosdemo.jfrog.io/docker/fedora-minimal:38
 COPY --from=builder /go/src/github.com/odigos-io/odigos/odiglet/odiglet /root/odiglet
 COPY --from=builder /go/bin/dlv /root/dlv
 # Copy statically compiled rsync (no shared libraries needed)

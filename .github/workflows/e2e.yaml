@@ -11,7 +11,7 @@ concurrency:
 
 jobs:
   build-cli:
-    runs-on: depot-ubuntu-24.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -50,10 +50,16 @@ jobs:
 
 
   build-odigos-images:
-    runs-on: depot-ubuntu-24.04-8
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - name: Checkout
         uses: actions/checkout@v5
+
+      - name: Setup JFrog Fly
+        uses: jfrog/fly-action@v1
 
       - name: Build Odigos Images
         run: |
@@ -77,7 +83,7 @@ jobs:
 
   kubernetes-test:
     needs: [ build-odigos-images, build-cli ]
-    runs-on: depot-ubuntu-24.04-8
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:

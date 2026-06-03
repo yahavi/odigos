@@ -1,6 +1,6 @@
 ARG ODIGLET_BASE_IMAGE=registry.odigos.io/odiglet-base:v1.16
 
-FROM --platform=$BUILDPLATFORM yahavihomework.jfrog.io/docker/busybox:1.36.1 AS dotnet-builder
+FROM --platform=$BUILDPLATFORM odigosdemo.jfrog.io/docker/busybox:1.36.1 AS dotnet-builder
 WORKDIR /dotnet-instrumentation
 ARG DOTNET_OTEL_VERSION=v1.9.0
 ARG TARGETARCH
@@ -149,7 +149,7 @@ FROM ${ODIGLET_BASE_IMAGE} AS rsync-base
 # - Provides built-in `sh`, `cp`, and other essential Unix tools.
 # - Allows `sh -c` command chaining (`cp dir1 dst1 && cp dir2 dst2`) in init containers.
 # - Very small (~1MB), making it good for init containers.
-FROM yahavihomework.jfrog.io/docker/busybox:1.36.1 AS agents
+FROM odigosdemo.jfrog.io/docker/busybox:1.36.1 AS agents
 WORKDIR /instrumentations/
 
 # Copy all instrumentation assets from the build stage
@@ -160,7 +160,7 @@ COPY --from=agents-builder /instrumentations/ .
 USER 1000:1000
 
 ######### RHEL agents final image #########
-FROM registry.access.redhat.com/ubi9/ubi-micro:latest AS agents-rhel
+FROM odigosdemo.jfrog.io/docker/ubi9/ubi-micro:latest AS agents-rhel
 ARG VERSION
 ARG RELEASE
 ARG SUMMARY
@@ -181,7 +181,7 @@ COPY --from=agents-builder /instrumentations/ .
 USER 1000:1000
 
 ######### RHEL Odiglet #########
-FROM registry.access.redhat.com/ubi9/ubi-micro:latest AS rhel
+FROM odigosdemo.jfrog.io/docker/ubi9/ubi-micro:latest AS rhel
 ARG VERSION
 ARG RELEASE
 ARG SUMMARY
@@ -206,7 +206,7 @@ COPY --from=agents-builder /instrumentations/ .
 CMD ["/root/odiglet"]
 
 ######### Default Odiglet #########
-FROM gcr.io/distroless/base:3443777deec6bd5c58be682f286aefffd1c871ae
+FROM odigosdemo.jfrog.io/docker/distroless/base:3443777deec6bd5c58be682f286aefffd1c871ae
 COPY --from=builder /go/src/github.com/odigos-io/odigos/odiglet/odiglet /root/odiglet
 COPY --from=deviceplugin-builder /go/src/github.com/odigos-io/odigos/deviceplugin/deviceplugin /root/deviceplugin
 COPY --from=csi-driver-builder /go/src/github.com/odigos-io/odigos/odiglet/odigos-csi-driver /root/odigos-csi-driver

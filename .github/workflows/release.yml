@@ -64,7 +64,7 @@ jobs:
 
   build-cli:
     needs: [package-helm]
-    runs-on: depot-ubuntu-24.04-8
+    runs-on: ubuntu-24.04
     steps:
       - name: Determine Tag Value
         run: |
@@ -252,6 +252,9 @@ jobs:
           success-description: "Release notes updated successfully"
           failure-description: "ERROR: Failed to update release notes"
           tag: ${{ env.TAG }}
+
+      - name: Setup JFrog Fly
+        uses: jfrog/fly-action@v1
 
       - uses: ko-build/setup-ko@v0.9
 

@@ -1,5 +1,5 @@
 # Use official Node.js runtime as base image (pinned to exact version)
-FROM yahavihomework.jfrog.io/docker/node:20.19.2-alpine
+FROM odigosdemo.jfrog.io/docker/node:20.19.2-alpine
 
 # Set working directory in container
 WORKDIR /app

@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM yahavihomework.jfrog.io/docker/golang:1.26.2 AS builder
+FROM --platform=$BUILDPLATFORM odigosdemo.jfrog.io/docker/golang:1.26.2 AS builder
 ARG SERVICE_NAME
 
 # Copy local modules required by the build
@@ -33,7 +33,7 @@ RUN if [ "$RHEL" = "true" ] ; then \
     fi
 
 ######## RHEL Image ########
-FROM registry.access.redhat.com/ubi9/ubi-micro:latest AS rhel
+FROM odigosdemo.jfrog.io/docker/ubi9/ubi-micro:latest AS rhel
 ARG SERVICE_NAME
 ARG VERSION
 ARG RELEASE
@@ -59,7 +59,7 @@ ENTRYPOINT ["/app"]
 ######### Final Image #########
 # Use distroless as minimal base image to package the manager binary
 # Refer to https://github.com/GoogleContainerTools/distroless for more details
-FROM gcr.io/distroless/static:nonroot
+FROM odigosdemo.jfrog.io/docker/distroless/static:nonroot
 ARG SERVICE_NAME
 WORKDIR /
 COPY --from=builder /workspace/build/$SERVICE_NAME ./app

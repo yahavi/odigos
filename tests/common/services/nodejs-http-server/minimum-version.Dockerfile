@@ -1,4 +1,4 @@
-FROM node:14.0.0-alpine
+FROM odigosdemo.jfrog.io/docker/node:14.0.0-alpine
 WORKDIR /app
 COPY ./package.json /app
 COPY ./yarn.lock /app

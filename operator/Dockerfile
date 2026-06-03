@@ -1,5 +1,5 @@
 # Build the manager binary
-FROM --platform=$BUILDPLATFORM yahavihomework.jfrog.io/docker/golang:1.26.2 AS builder
+FROM --platform=$BUILDPLATFORM odigosdemo.jfrog.io/docker/golang:1.26.2 AS builder
 ARG TARGETOS
 ARG TARGETARCH
 ARG ODIGOS_VERSION
@@ -45,7 +45,7 @@ RUN if [ "$RHEL" = "true" ] ; then \
       make licenses ; \
     fi
 
-FROM registry.access.redhat.com/ubi9/ubi-micro:latest AS rhel
+FROM odigosdemo.jfrog.io/docker/ubi9/ubi-micro:latest AS rhel
 ARG VERSION
 ARG RELEASE
 ARG SUMMARY
@@ -67,7 +67,7 @@ ENTRYPOINT ["/manager"]
 
 # Use distroless as minimal base image to package the manager binary
 # Refer to https://github.com/GoogleContainerTools/distroless for more details
-FROM gcr.io/distroless/static:nonroot
+FROM odigosdemo.jfrog.io/docker/distroless/static:nonroot
 WORKDIR /
 COPY --from=builder /go/src/github.com/odigos-io/odigos/operator/manager .
 USER 65532:65532
