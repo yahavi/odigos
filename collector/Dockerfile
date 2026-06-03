@@ -19,7 +19,7 @@ RUN if [ "$RHEL" = "true" ] ; then \
       make licenses ; \
     fi
 
-FROM odigosdemo.jfrog.io/docker/ubi9/ubi-micro:latest AS rhel
+FROM registry.access.redhat.com/ubi9/ubi-micro:latest AS rhel
 ARG VERSION
 ARG RELEASE
 ARG SUMMARY
@@ -37,6 +37,6 @@ COPY --from=builder /go/src/collector/odigosotelcol/LICENSE /licenses/.
 USER 65532:65532
 CMD ["/odigosotelcol"]
 
-FROM odigosdemo.jfrog.io/docker/distroless/base:latest
+FROM gcr.io/distroless/base:latest
 COPY --from=builder /go/src/collector/odigosotelcol/odigosotelcol /odigosotelcol
 CMD ["/odigosotelcol"]

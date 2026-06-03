@@ -45,7 +45,7 @@ RUN if [ "$RHEL" = "true" ] ; then \
       make licenses ; \
     fi
 
-FROM odigosdemo.jfrog.io/docker/ubi9/ubi-micro:latest AS rhel
+FROM registry.access.redhat.com/ubi9/ubi-micro:latest AS rhel
 ARG VERSION
 ARG RELEASE
 ARG SUMMARY
@@ -67,7 +67,7 @@ ENTRYPOINT ["/manager"]
 
 # Use distroless as minimal base image to package the manager binary
 # Refer to https://github.com/GoogleContainerTools/distroless for more details
-FROM odigosdemo.jfrog.io/docker/distroless/static:nonroot
+FROM gcr.io/distroless/static:nonroot
 WORKDIR /
 COPY --from=builder /go/src/github.com/odigos-io/odigos/operator/manager .
 USER 65532:65532

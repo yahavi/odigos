@@ -87,7 +87,7 @@ RUN wget --directory-prefix=loader https://storage.googleapis.com/odigos-loader/
 
 FROM ${ODIGLET_BASE_IMAGE} AS rsync-base
 
-FROM odigosdemo.jfrog.io/docker/fedora-minimal:38
+FROM registry.fedoraproject.org/fedora-minimal:38
 COPY --from=builder /go/src/github.com/odigos-io/odigos/odiglet/odiglet /root/odiglet
 COPY --from=builder /go/bin/dlv /root/dlv
 # Copy statically compiled rsync (no shared libraries needed)

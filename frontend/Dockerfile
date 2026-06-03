@@ -33,7 +33,7 @@ RUN if [ "$RHEL" = "true" ] ; then \
       make licenses ; \
     fi
 
-FROM odigosdemo.jfrog.io/docker/ubi9/ubi-micro:latest AS rhel
+FROM registry.access.redhat.com/ubi9/ubi-micro:latest AS rhel
 ARG VERSION
 ARG RELEASE
 ARG SUMMARY
@@ -52,7 +52,7 @@ COPY --from=backend /app/frontend/LICENSE /licenses/.
 USER 65532:65532
 ENTRYPOINT ["/app/odigos-ui", "--address", "0.0.0.0"]
 
-FROM odigosdemo.jfrog.io/docker/distroless/static:nonroot
+FROM gcr.io/distroless/static:nonroot
 WORKDIR /app
 COPY --from=backend /app/frontend/odigos-ui .
 USER 65532:65532

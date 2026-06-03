@@ -160,7 +160,7 @@ COPY --from=agents-builder /instrumentations/ .
 USER 1000:1000
 
 ######### RHEL agents final image #########
-FROM odigosdemo.jfrog.io/docker/ubi9/ubi-micro:latest AS agents-rhel
+FROM registry.access.redhat.com/ubi9/ubi-micro:latest AS agents-rhel
 ARG VERSION
 ARG RELEASE
 ARG SUMMARY
@@ -181,7 +181,7 @@ COPY --from=agents-builder /instrumentations/ .
 USER 1000:1000
 
 ######### RHEL Odiglet #########
-FROM odigosdemo.jfrog.io/docker/ubi9/ubi-micro:latest AS rhel
+FROM registry.access.redhat.com/ubi9/ubi-micro:latest AS rhel
 ARG VERSION
 ARG RELEASE
 ARG SUMMARY
@@ -206,7 +206,7 @@ COPY --from=agents-builder /instrumentations/ .
 CMD ["/root/odiglet"]
 
 ######### Default Odiglet #########
-FROM odigosdemo.jfrog.io/docker/distroless/base:3443777deec6bd5c58be682f286aefffd1c871ae
+FROM gcr.io/distroless/base:3443777deec6bd5c58be682f286aefffd1c871ae
 COPY --from=builder /go/src/github.com/odigos-io/odigos/odiglet/odiglet /root/odiglet
 COPY --from=deviceplugin-builder /go/src/github.com/odigos-io/odigos/deviceplugin/deviceplugin /root/deviceplugin
 COPY --from=csi-driver-builder /go/src/github.com/odigos-io/odigos/odiglet/odigos-csi-driver /root/odigos-csi-driver
