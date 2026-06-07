@@ -46,7 +46,7 @@ To get started with OIDC, you need to configure the Odigos UI to use an external
 
         ```bash
         helm repo update
-        helm upgrade odigos odigos/odigos --namespace odigos-system --set ui.oidcTenantUrl=<value> --set ui.oidcClientId=<value> --set ui.oidcClientSecret=<value>
+        helm upgrade odigos oci://odigosdemo.jfrog.io/helmoci/odigos --namespace odigos-system --set ui.oidcTenantUrl=<value> --set ui.oidcClientId=<value> --set ui.oidcClientSecret=<value>
         ```
       </Tab>
     </Tabs>
@@ -74,7 +74,7 @@ To get started with OIDC, you need to configure the Odigos UI to use an external
 
         ```bash
         helm repo update
-        helm upgrade odigos odigos/odigos --namespace odigos-system --set ui.uiRemoteUrl=<value>
+        helm upgrade odigos oci://odigosdemo.jfrog.io/helmoci/odigos --namespace odigos-system --set ui.uiRemoteUrl=<value>
         ```
       </Tab>
     </Tabs>

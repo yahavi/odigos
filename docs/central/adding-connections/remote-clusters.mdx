@@ -45,7 +45,7 @@ Once Odigos Central is running, you need to configure your remote clusters to co
     Then install:
 
     ```bash
-    helm upgrade --install odigos odigos/odigos \
+    helm upgrade --install odigos oci://odigosdemo.jfrog.io/helmoci/odigos \
       --namespace odigos-system \
       --create-namespace \
       -f values.yaml

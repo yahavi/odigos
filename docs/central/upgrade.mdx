@@ -31,8 +31,7 @@ odigos pro central upgrade --version v1.2.0 --yes
 ## Using Helm
 
 ```bash
-helm repo update
-helm upgrade odigos-central odigos/odigos-central \
+helm upgrade odigos-central oci://odigosdemo.jfrog.io/helmoci/odigos-central \
   --namespace odigos-central \
   --reuse-values \
   --version <chart-version>

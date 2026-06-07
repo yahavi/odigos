@@ -4,32 +4,14 @@
 
 This repository contains the helm chart for Odigos - the observability control plane.
 
-```
-helm repo add odigos https://odigos-io.github.io/odigos --force-update
-```
-
-## Migration
-
-If you have been previously using chart repository at [odigos-charts](https://github.com/odigos-io/odigos-charts) you will get an error "Error: repository name (odigos) already exists, please specify a different name".
-To update to new repository location run:
-
-```sh
-helm repo add odigos https://odigos-io.github.io/odigos/ --force-update
-```
+The chart is published as an OCI artifact to `oci://odigosdemo.jfrog.io/helmoci`.
 
 ## Usage
-
-Add helm repository:
-
-```sh
-helm repo add odigos https://odigos-io.github.io/odigos
-```
 
 ### Install Odigos
 
 ```sh
-helm repo update
-helm upgrade --install odigos odigos/odigos --namespace odigos-system --create-namespace
+helm upgrade --install odigos oci://odigosdemo.jfrog.io/helmoci/odigos --namespace odigos-system --create-namespace
 ```
 
 - **Openshift Clusters** - Make sure to set `openshift.enabled=true` in the values file or pass it as a flag while installing the chart.
@@ -40,7 +22,7 @@ helm upgrade --install odigos odigos/odigos --namespace odigos-system --create-n
 By default, images are pulled from odigos registry at `registry.odigos.io`. To use a custom Docker registry instead, set the `imagePrefix` value during installation:
 
 ```sh
-helm upgrade --install odigos odigos/odigos \
+helm upgrade --install odigos oci://odigosdemo.jfrog.io/helmoci/odigos \
   --namespace odigos-system \
   --create-namespace \
   --set imagePrefix=$CUSTOM_DOCKER_REGISTRY

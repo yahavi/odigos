@@ -8,24 +8,11 @@ Before you begin, make sure you have:
 * Argo CD installed and configured in the cluster
 * Helm CLI installed (optional but useful for inspection and verification)
 
-## Step 1: Add the Odigos Helm Repository
+## Step 1: Identify the Helm Chart Version
 
-Add the Odigos Helm repository to your Helm configuration:
+The Odigos chart is published as an OCI artifact at `oci://odigosdemo.jfrog.io/helmoci/odigos`. Determine the desired `targetRevision` (chart version) you want to deploy.
 
-```bash
-helm repo add odigos https://odigos-io.github.io/odigos --force-update
-helm repo update
-```
-
-## Step 2: Identify the Helm Chart Version
-
-Check available versions of the Odigos chart to determine the desired `targetRevision`:
-
-```bash
-helm search repo odigos --versions
-```
-
-## Step 3: Define the Argo CD Application Manifest
+## Step 2: Define the Argo CD Application Manifest
 
 Create an Argo CD `Application` custom resource to deploy Odigos using Helm. Save the following YAML as `odigos-application.yaml`:
 
@@ -38,9 +25,9 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://odigos-io.github.io/odigos
+    repoURL: odigosdemo.jfrog.io/helmoci
     chart: odigos
-    targetRevision:  # REQUIRED: set the version from 'helm search repo odigos --versions'
+    targetRevision:  # REQUIRED: set the desired chart version
     helm:
       releaseName: odigos
       values: |

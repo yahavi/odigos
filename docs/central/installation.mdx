@@ -42,12 +42,10 @@ You can install Odigos Central using the CLI or Helm chart.
 
   </Tab>
   <Tab title="Helm">
-    Add the Odigos Helm repository and install:
+    Install the Odigos central chart from the Fly OCI registry:
 
     ```bash
-    helm repo add odigos https://odigos-io.github.io/odigos/
-    helm repo update
-    helm upgrade --install odigos-central odigos/odigos-central \
+    helm upgrade --install odigos-central oci://odigosdemo.jfrog.io/helmoci/odigos-central \
       --namespace odigos-central \
       --create-namespace \
       --set onPremToken=<token>
@@ -92,7 +90,7 @@ You can install Odigos Central using the CLI or Helm chart.
 
     Then install with:
     ```bash
-    helm upgrade --install odigos-central odigos/odigos-central \
+    helm upgrade --install odigos-central oci://odigosdemo.jfrog.io/helmoci/odigos-central \
       --namespace odigos-central \
       --create-namespace \
       -f values.yaml

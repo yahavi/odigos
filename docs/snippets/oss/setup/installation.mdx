@@ -77,17 +77,12 @@ At this point, odigos is installed in your cluster. You can now add sources and 
 
 ## Helm Chart
 
-### Add Helm Repository
-
-```shell
-helm repo add odigos https://odigos-io.github.io/odigos/
-```
+The chart is published as an OCI artifact to `oci://odigosdemo.jfrog.io/helmoci`.
 
 ### Install Odigos
 
 ```shell
-helm repo update
-helm upgrade --install odigos odigos/odigos --namespace odigos-system --create-namespace
+helm upgrade --install odigos oci://odigosdemo.jfrog.io/helmoci/odigos --namespace odigos-system --create-namespace
 ```
 
 Once the Odigos pods are online, simply run the following command to launch the Odigos UI.

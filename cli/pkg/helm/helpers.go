@@ -2,9 +2,7 @@ package helm
 
 import (
 	"context"
-	"errors"
 	"fmt"
-	"os"
 	"strings"
 
 	"github.com/odigos-io/odigos/api/k8sconsts"
@@ -15,7 +13,7 @@ import (
 	"helm.sh/helm/v3/pkg/cli"
 	"helm.sh/helm/v3/pkg/cli/values"
 	"helm.sh/helm/v3/pkg/getter"
-	"helm.sh/helm/v3/pkg/repo"
+	"helm.sh/helm/v3/pkg/registry"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -95,20 +93,25 @@ func prepareChartAndValues(settings *cli.EnvSettings, chartName string, embedded
 		// if no embedded chart found, continue with repo fallback
 	}
 
-	// otherwise: use remote/local chart like today
-	if strings.HasPrefix(HelmChart, k8sconsts.OdigosHelmRepoName+"/") {
-		if err := ensureHelmRepo(settings, k8sconsts.OdigosHelmRepoName, k8sconsts.OdigosHelmRepoURL); err != nil {
-			return nil, nil, err
+	// otherwise: use remote/local chart.
+	// The default Odigos charts are published to an OCI registry. Map the
+	// historical "odigos/<chart>" aliases to their oci:// references so Helm
+	// can pull them directly (LocateChart handles oci:// natively, no repo add).
+	chartRef := resolveOdigosOCIChart(HelmChart)
+
+	// Locate the chart. OCI references require a registry client, which is
+	// wired through an install action's ChartPathOptions (the registry client
+	// field is unexported and only set via the action configuration).
+	locator := action.NewInstall(&action.Configuration{})
+	locator.Version = version
+	if registry.IsOCI(chartRef) {
+		regClient, err := registry.NewClient()
+		if err != nil {
+			return nil, nil, fmt.Errorf("failed to create Helm registry client: %w", err)
 		}
+		locator.SetRegistryClient(regClient)
 	}
-
-	if strings.Contains(HelmChart, "/") {
-		refreshHelmRepo(settings, HelmChart)
-		fmt.Println("Refreshed Helm repo", HelmChart)
-	}
-
-	chartPathOptions := action.ChartPathOptions{Version: version}
-	chartPath, err := chartPathOptions.LocateChart(HelmChart, settings)
+	chartPath, err := locator.ChartPathOptions.LocateChart(chartRef, settings)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -144,65 +147,18 @@ func prepareChartAndValues(settings *cli.EnvSettings, chartName string, embedded
 	return ch, vals, nil
 }
 
-// ensureHelmRepo adds a repo if missing
-func ensureHelmRepo(settings *cli.EnvSettings, name, url string) error {
-	repoFile := settings.RepositoryConfig
-	f, err := repo.LoadFile(repoFile)
-	// Use errors.Is to properly handle wrapped errors from Helm
-	if err != nil && !errors.Is(err, os.ErrNotExist) {
-		return err
-	}
-	// check if repo already exists
-	if f != nil {
-		for _, r := range f.Repositories {
-			if r.Name == name {
-				return nil // already present
-			}
-		}
-	} else {
-		f = repo.NewFile()
-	}
-
-	// add new repo
-	entry := &repo.Entry{Name: name, URL: url}
-	r, err := repo.NewChartRepository(entry, getter.All(settings))
-	if err != nil {
-		return err
-	}
-	_, err = r.DownloadIndexFile()
-	if err != nil {
-		return fmt.Errorf("cannot reach repo %s at %s: %w", name, url, err)
-	}
-	f.Update(entry)
-	return f.WriteFile(repoFile, 0644)
-}
-
-// refreshHelmRepo updates repo index (like `helm repo update`)
-func refreshHelmRepo(settings *cli.EnvSettings, chartRef string) {
-	repoFile := settings.RepositoryConfig
-	repoCache := settings.RepositoryCache
-
-	f, err := repo.LoadFile(repoFile)
-	if err != nil {
-		fmt.Printf("Warning: cannot load Helm repo file: %v\n", err)
-		return
-	}
-
-	for _, r := range f.Repositories {
-		if strings.HasPrefix(chartRef, r.Name+"/") {
-			chartRepo, err := repo.NewChartRepository(r, getter.All(settings))
-			if err != nil {
-				fmt.Printf("Warning: cannot create repo client for %s: %v\n", r.Name, err)
-				continue
-			}
-			chartRepo.CachePath = repoCache
-			_, err = chartRepo.DownloadIndexFile()
-			if err != nil {
-				fmt.Printf("Warning: failed to update repo %s: %v\n", r.Name, err)
-			} else {
-				fmt.Printf("Updated Helm repo: %s\n", r.Name)
-			}
-		}
+// resolveOdigosOCIChart maps the historical "odigos/<chart>" aliases to their
+// OCI references so Helm can pull them directly from the Fly registry.
+// Any other value (local path, explicit oci:// ref, or third-party repo/name)
+// is returned unchanged.
+func resolveOdigosOCIChart(chartRef string) string {
+	switch chartRef {
+	case k8sconsts.DefaultHelmChart:
+		return k8sconsts.OdigosHelmOCIChart
+	case k8sconsts.DefaultCentralHelmChart:
+		return k8sconsts.OdigosCentralHelmOCIChart
+	default:
+		return chartRef
 	}
 }
 

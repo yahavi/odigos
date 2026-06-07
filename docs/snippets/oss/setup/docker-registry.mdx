@@ -119,7 +119,7 @@ odigos install --image-prefix=$CUSTOM_DOCKER_REGISTRY
   <Tab title="Helm Chart">
 ```bash
 helm repo update
-helm upgrade --install odigos odigos/odigos --namespace odigos-system --create-namespace --set imagePrefix=$CUSTOM_DOCKER_REGISTRY
+helm upgrade --install odigos oci://odigosdemo.jfrog.io/helmoci/odigos --namespace odigos-system --create-namespace --set imagePrefix=$CUSTOM_DOCKER_REGISTRY
 kubectl label namespace odigos-system odigos.io/system-object="true"
 ```
   </Tab>
