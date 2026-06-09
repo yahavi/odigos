@@ -1,5 +1,21 @@
 ARG ODIGLET_BASE_IMAGE=registry.odigos.io/odiglet-base:v1.16
 
+# Registry prefix for the published community agent images. Defaults to AWS
+# Public ECR; override in CI to pull through a Fly remote that proxies
+# public.ecr.aws (e.g. odigosdemo.jfrog.io/<ecr-remote-key>/odigos/agents)
+# to get authenticated, rate-limit-free pulls.
+# NOTE: BuildKit does not allow variable expansion in `COPY --from=`, so the
+# prefix is applied via named FROM stages (which do support ARG expansion).
+ARG AGENTS_REGISTRY=public.ecr.aws/odigos/agents
+
+# Named stages for the community agent images so the registry prefix is configurable.
+FROM ${AGENTS_REGISTRY}/python-community:v1.0.73-py3.8 AS agent-python-38
+FROM ${AGENTS_REGISTRY}/python-community:v1.0.87 AS agent-python
+FROM ${AGENTS_REGISTRY}/nodejs-community:v0.8.0 AS agent-nodejs
+FROM ${AGENTS_REGISTRY}/nodejs-community-14:v0.0.20 AS agent-nodejs-14
+FROM ${AGENTS_REGISTRY}/php-community:v0.3.2 AS agent-php
+FROM ${AGENTS_REGISTRY}/ruby-community:v0.0.8 AS agent-ruby
+
 FROM --platform=$BUILDPLATFORM odigosdemo.jfrog.io/docker/busybox:1.36.1 AS dotnet-builder
 WORKDIR /dotnet-instrumentation
 ARG DOTNET_OTEL_VERSION=v1.9.0
@@ -40,24 +56,24 @@ ARG JAVA_OTEL_VERSION=v2.10.0
 ADD --chmod=644 https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/$JAVA_OTEL_VERSION/opentelemetry-javaagent.jar /instrumentations/java/javaagent.jar
 
 # python-community/python-community3.8
-COPY --from=public.ecr.aws/odigos/agents/python-community:v1.0.73-py3.8 /instrumentations/python3.8 /instrumentations/python3.8
-COPY --from=public.ecr.aws/odigos/agents/python-community:v1.0.87 /instrumentations/python /instrumentations/python
+COPY --from=agent-python-38 /instrumentations/python3.8 /instrumentations/python3.8
+COPY --from=agent-python /instrumentations/python /instrumentations/python
 
 # nodejs-community
-COPY --from=public.ecr.aws/odigos/agents/nodejs-community:v0.8.0 /instrumentations/opentelemetry-node /instrumentations/opentelemetry-node
-COPY --from=public.ecr.aws/odigos/agents/nodejs-community:v0.8.0 /instrumentations/nodejs-community /instrumentations/nodejs-community
+COPY --from=agent-nodejs /instrumentations/opentelemetry-node /instrumentations/opentelemetry-node
+COPY --from=agent-nodejs /instrumentations/nodejs-community /instrumentations/nodejs-community
 # nodejs-community-14
-COPY --from=public.ecr.aws/odigos/agents/nodejs-community-14:v0.0.20 /instrumentations/opentelemetry-node-14 /instrumentations/opentelemetry-node-14
-COPY --from=public.ecr.aws/odigos/agents/nodejs-community-14:v0.0.20 /instrumentations/nodejs-community-14 /instrumentations/nodejs-community-14
+COPY --from=agent-nodejs-14 /instrumentations/opentelemetry-node-14 /instrumentations/opentelemetry-node-14
+COPY --from=agent-nodejs-14 /instrumentations/nodejs-community-14 /instrumentations/nodejs-community-14
 
 # nodejs-community
 COPY --from=dotnet-builder /dotnet-instrumentation /instrumentations/dotnet
 
 # php-community
-COPY --from=public.ecr.aws/odigos/agents/php-community:v0.3.2 /instrumentations/php /instrumentations/php
+COPY --from=agent-php /instrumentations/php /instrumentations/php
 
 # ruby-community
-COPY --from=public.ecr.aws/odigos/agents/ruby-community:v0.0.8 /instrumentations/ruby /instrumentations/ruby
+COPY --from=agent-ruby /instrumentations/ruby /instrumentations/ruby
 
 # loader
 ARG TARGETARCH
