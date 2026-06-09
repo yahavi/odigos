@@ -1,5 +1,5 @@
 # Use an Alpine base image for building the server
-FROM yahavihomework.jfrog.io/docker/alpine:latest AS builder
+FROM odigosdemo.jfrog.io/docker/alpine:latest AS builder
 
 # Install required packages: g++, wget, and make
 RUN apk add --no-cache g++ wget cmake
@@ -20,7 +20,7 @@ COPY server.cpp .
 RUN g++ -std=c++11 -I/usr/local/include/httplib server.cpp -o server
 
 # Use a minimal runtime base image
-FROM yahavihomework.jfrog.io/docker/alpine:latest
+FROM odigosdemo.jfrog.io/docker/alpine:latest
 
 # Install required shared libraries for running the application
 RUN apk add --no-cache libstdc++

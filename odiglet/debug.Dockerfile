@@ -3,7 +3,7 @@ ARG ODIGLET_BASE_IMAGE=registry.odigos.io/odiglet-base:v1.16
 
 ######### python Native Community Agent #########
 
-FROM --platform=$BUILDPLATFORM busybox:1.36.1 AS dotnet-builder
+FROM --platform=$BUILDPLATFORM odigosdemo.jfrog.io/docker/busybox:1.36.1 AS dotnet-builder
 WORKDIR /dotnet-instrumentation
 ARG DOTNET_OTEL_VERSION=v1.9.0
 ARG TARGETARCH

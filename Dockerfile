@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM yahavihomework.jfrog.io/docker/golang:1.26.2 AS builder
+FROM --platform=$BUILDPLATFORM odigosdemo.jfrog.io/docker/golang:1.26.2 AS builder
 ARG SERVICE_NAME
 
 # Copy local modules required by the build

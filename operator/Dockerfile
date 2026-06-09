@@ -1,5 +1,5 @@
 # Build the manager binary
-FROM --platform=$BUILDPLATFORM yahavihomework.jfrog.io/docker/golang:1.26.2 AS builder
+FROM --platform=$BUILDPLATFORM odigosdemo.jfrog.io/docker/golang:1.26.2 AS builder
 ARG TARGETOS
 ARG TARGETARCH
 ARG ODIGOS_VERSION

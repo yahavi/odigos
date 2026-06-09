@@ -17,8 +17,14 @@ const (
 const (
 	DefaultHelmChart          = "odigos/odigos"
 	OdigosHelmRepoName        = "odigos"
-	OdigosHelmRepoURL         = "https://odigos-io.github.io/odigos/"
 	DefaultCentralHelmChart   = "odigos/odigos-central"
 	OdigosCentralHelmRepoName = "odigos-central"
 	DefaultCentralReleaseName = "odigos-central"
+
+	// OdigosHelmOCIRepo is the OCI registry where Odigos Helm charts are published.
+	// Charts are pulled directly via oci:// references (no `helm repo add` needed).
+	OdigosHelmOCIRepo = "oci://odigosdemo.jfrog.io/helmoci"
+	// OdigosHelmOCIChart / OdigosCentralHelmOCIChart are the full OCI references for the charts.
+	OdigosHelmOCIChart        = OdigosHelmOCIRepo + "/odigos"
+	OdigosCentralHelmOCIChart = OdigosHelmOCIRepo + "/odigos-central"
 )

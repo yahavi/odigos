@@ -11,7 +11,7 @@ concurrency:
 
 jobs:
   build-cli:
-    runs-on: depot-ubuntu-24.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -50,10 +50,16 @@ jobs:
 
 
   build-odigos-images:
-    runs-on: depot-ubuntu-24.04-8
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - name: Checkout
         uses: actions/checkout@v5
+
+      - name: Setup JFrog Fly
+        uses: jfrog/fly-action@v1
 
       - name: Build Odigos Images
         run: |
@@ -77,7 +83,10 @@ jobs:
 
   kubernetes-test:
     needs: [ build-odigos-images, build-cli ]
-    runs-on: depot-ubuntu-24.04-8
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
     strategy:
       fail-fast: false
       matrix:
@@ -174,24 +183,32 @@ jobs:
       - name: Move CLI binary & set permissions
         run: chmod +x cli/odigos
 
-      - name: Get latest release tag for branch from Helm
+      - name: Setup JFrog Fly
+        uses: jfrog/fly-action@v1
+
+      - name: Get latest release tag for branch from Fly Helm OCI
         id: get-latest-tag
         run: |
-          echo "📦 Updating Helm repositories..."
-          helm repo add odigos https://odigos-io.github.io/odigos/ || true
-          helm repo update
+          echo "📦 Listing published chart versions from Fly Helm OCI..."
+          # Fly/Artifactory expose OCI artifact tags via the Docker Registry v2 API.
+          # fly-action already configured the docker login, so reuse its bearer token.
+          FLY_TOKEN=$(jq -r '.auths["odigosdemo.jfrog.io"].auth' ~/.docker/config.json | base64 -d | cut -d: -f2-)
+          ALL_TAGS=$(curl -sf -H "Authorization: Bearer ${FLY_TOKEN}" \
+            "https://odigosdemo.jfrog.io/v2/helmoci/odigos/tags/list" | jq -r '.tags[]')
 
           BRANCH="${{ github.base_ref || github.ref_name }}"
-          # If on a release branch (e.g., releases/v1.14.0), get latest Helm version for that version line
-          # Otherwise (main), get the latest overall Helm chart version
+          # If on a release branch (e.g., releases/v1.14.0), get latest version for that version line
+          # Otherwise (main), get the latest overall chart version
           if [[ "$BRANCH" == releases/* ]]; then
             VERSION_PREFIX=$(echo "$BRANCH" | sed -E 's|releases/v([0-9]+\.[0-9]+)\..*|\1|')
-            echo "Release branch detected, looking for v${VERSION_PREFIX}.* in Helm"
-            LATEST_RELEASE_TAG=$(helm search repo odigos/odigos --versions | awk -v prefix="^v${VERSION_PREFIX}\\\\." '$1 == "odigos/odigos" && $3 ~ prefix {print $3; exit}')
+            echo "Release branch detected, looking for ${VERSION_PREFIX}.* in Fly"
+            LATEST_VERSION=$(echo "$ALL_TAGS" | grep -E "^${VERSION_PREFIX}\." | sort -V | tail -1)
           else
-            echo "Non-release branch, using latest Helm chart version"
-            LATEST_RELEASE_TAG=$(helm search repo odigos/odigos | awk '$1 == "odigos/odigos" {print $3}')
+            echo "Non-release branch, using latest chart version"
+            LATEST_VERSION=$(echo "$ALL_TAGS" | sort -V | tail -1)
           fi
+          # Chart versions are stored without the leading 'v'; restore it for the tag
+          LATEST_RELEASE_TAG="v${LATEST_VERSION}"
           echo "LATEST_RELEASE_TAG=$LATEST_RELEASE_TAG" >> $GITHUB_OUTPUT
           echo "Latest release tag for branch $BRANCH: $LATEST_RELEASE_TAG"
 

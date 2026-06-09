@@ -30,7 +30,7 @@ permissions:
 
 jobs:
   build-images:
-    runs-on: depot-ubuntu-24.04-8
+    runs-on: ubuntu-24.04
 
     env:
       # The expression checks for an input from either the workflow_call context (inputs) or from workflow_dispatch (github.event.inputs).
@@ -56,6 +56,9 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+
+      - name: Setup JFrog Fly
+        uses: jfrog/fly-action@v1
 
       - name: Build and Tag Docker Images
         env:

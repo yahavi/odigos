@@ -9,6 +9,14 @@ permissions:
   contents: read
   id-token: write
 
+env:
+  # Registry prefix for the community instrumentation agent images pulled by
+  # odiglet/Dockerfile. Defaults to AWS Public ECR. To avoid anonymous ECR rate
+  # limits (HTTP 429) on public runners, route these through a Fly remote repo
+  # that proxies public.ecr.aws by setting this to:
+  #   odigosdemo.jfrog.io/<ecr-remote-key>/odigos/agents
+  AGENTS_REGISTRY: public.ecr.aws/odigos/agents
+
 jobs:
   build-and-test-autoscaler:
     name: build-and-test-autoscaler
@@ -106,7 +114,7 @@ jobs:
 
   build-agents:
     name: build-agents
-    runs-on: depot-ubuntu-latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
       - name: Set up Docker Buildx
@@ -121,7 +129,9 @@ jobs:
           tags: agents:pr-${{ github.event.number || github.run_number }}
           provenance: false
           file: odiglet/Dockerfile
-          build-args: SERVICE_NAME=agents
+          build-args: |
+            SERVICE_NAME=agents
+            AGENTS_REGISTRY=${{ env.AGENTS_REGISTRY }}
           target: agents
           outputs: type=docker,dest=/tmp/agents.tar
       - name: Load Docker image for scanning
@@ -204,7 +214,7 @@ jobs:
 
   build-and-test-odigos-collector:
     name: build-and-test-odigos-collector
-    runs-on: depot-ubuntu-24.04-8
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v5
       - name: Set up Docker Buildx
@@ -252,7 +262,7 @@ jobs:
 
   build-and-test-odiglet:
     name: build-and-test-odiglet
-    runs-on: depot-ubuntu-24.04-2
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v5
       - name: Set up Docker Buildx

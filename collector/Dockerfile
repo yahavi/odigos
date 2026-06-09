@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM yahavihomework.jfrog.io/docker/golang:1.26.2-trixie AS builder
+FROM --platform=$BUILDPLATFORM odigosdemo.jfrog.io/docker/golang:1.26.2-trixie AS builder
 COPY ./collector/ /go/src/collector
 # Need to copy the common folder to the collector for custom connector that uses it
 COPY ./common/ /go/src/common

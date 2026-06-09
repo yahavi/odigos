@@ -26,29 +26,18 @@ spec:
               echo "🧼 Cleaning up any existing installation that might be left over from previous runs..."
               helm uninstall odigos -n odigos-test || true
 
-              echo "📦 Updating Helm repositories..."
-              helm repo add odigos https://odigos-io.github.io/odigos/
-              helm repo update
-
-              echo "🔍 Fetching latest Odigos release from Helm Chart..."
+              echo "🔍 Fetching latest Odigos release from Fly Helm OCI registry..."
               if [ -n "$LATEST_RELEASE_TAG" ]; then
                 IMAGE_TAG="$LATEST_RELEASE_TAG"
                 echo "✅ Using LATEST_RELEASE_TAG from environment: $IMAGE_TAG"
               else
-                IMAGE_TAG=$(helm search repo odigos | awk '$1 == "odigos/odigos" {print $3}')
-                if [ -z "$IMAGE_TAG" ]; then
-                  echo "❌ ERROR: Failed to fetch latest release, aborting..."
-                else
-                  echo "✅ Successfully fetched latest Odigos release from Helm Chart: $IMAGE_TAG"
-                fi
+                echo "❌ ERROR: LATEST_RELEASE_TAG is required to resolve the chart version from Fly OCI, aborting..."
+                exit 1
               fi
 
-              DOWNLOAD_URL="https://github.com/odigos-io/odigos/releases/download/${IMAGE_TAG}/helm-chart-odigos-${IMAGE_TAG#v}.tgz"
-              echo "⬇️ Downloading Odigos $IMAGE_TAG from: $DOWNLOAD_URL"
-              # --retry X: retry up to X times
-              # --retry-delay X: wait X second between retries
-              # --retry-max-time X: maximum time to spend retrying (X seconds for download)
-              curl -L -o odigos-latest-chart.tgz --retry 5 --retry-delay 1 --retry-max-time 60 "$DOWNLOAD_URL"
+              echo "⬇️ Pulling Odigos $IMAGE_TAG from oci://odigosdemo.jfrog.io/helmoci"
+              helm pull oci://odigosdemo.jfrog.io/helmoci/odigos --version "${IMAGE_TAG#v}" -d .
+              mv "odigos-${IMAGE_TAG#v}.tgz" odigos-latest-chart.tgz
 
               echo "🚀 Installing Odigos $IMAGE_TAG from Helm Chart..."
               helm upgrade --install odigos ./odigos-latest-chart.tgz \

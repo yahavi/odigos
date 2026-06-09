@@ -65,15 +65,12 @@ odigos upgrade
 <Tabs>
   <Tab title="Upgrade to Latest Version">
     ```shell
-    helm repo update
-    helm upgrade odigos odigos/odigos --namespace odigos-system
+    helm upgrade odigos oci://odigosdemo.jfrog.io/helmoci/odigos --namespace odigos-system
     ```
   </Tab>
   <Tab title="Upgrade to Specific Version">
     ```shell
-    helm repo update
-    helm search repo odigos --versions ## list all available versions
-    helm upgrade --install odigos odigos/odigos \
+    helm upgrade --install odigos oci://odigosdemo.jfrog.io/helmoci/odigos \
     --namespace odigos-test \
     --create-namespace \
     --version <VERSION>
